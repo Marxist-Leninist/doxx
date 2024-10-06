@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Decentralized Twitter Clone</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #app { max-width: 600px; margin: auto; }
+    #tweet-input { width: 100%; height: 50px; }
+    #tweet-button { margin-top: 10px; }
+    .tweet { border-bottom: 1px solid #ccc; padding: 10px 0; }
+    .author { font-weight: bold; }
+    .timestamp { color: #888; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Decentralized Twitter Clone</h1>
+    <textarea id="tweet-input" placeholder="What's happening?"></textarea><br>
+    <button id="tweet-button">Tweet</button>
+    <h2>Timeline</h2>
+    <div id="timeline"></div>
+  </div>
+
+  <script>
+    // Initialize variables
+    const tweetInput = document.getElementById('tweet-input');
+    const tweetButton = document.getElementById('tweet-button');
+    const timeline = document.getElementById('timeline');
+
+    // Load tweets from localStorage or initialize an empty array
+    let tweets = JSON.parse(localStorage.getItem('tweets')) || [];
+
+    // Function to display tweets
+    function displayTweets() {
+      timeline.innerHTML = '';
+      tweets.slice().reverse().forEach(tweet => {
+        const tweetElement = document.createElement('div');
+        tweetElement.classList.add('tweet');
+        tweetElement.innerHTML = `
+          <div class="author">${tweet.author}</div>
+          <div class="text">${tweet.text}</div>
+          <div class="timestamp">${new Date(tweet.timestamp).toLocaleString()}</div>
+        `;
+        timeline.appendChild(tweetElement);
+      });
+    }
+
+    // Display existing tweets on page load
+    displayTweets();
+
+    // Handle tweet posting
+    tweetButton.addEventListener('click', () => {
+      const text = tweetInput.value.trim();
+      if (text === '') return;
+
+      const tweet = {
+        text: text,
+        timestamp: Date.now(),
+        author: 'You' // Placeholder author name
+      };
+
+      // Add the new tweet to the array
+      tweets.push(tweet);
+
+      // Save the updated tweets array to localStorage
+      localStorage.setItem('tweets', JSON.stringify(tweets));
+
+      // Clear the input field
+      tweetInput.value = '';
+
+      // Update the displayed tweets
+      displayTweets();
+    });
+  </script>
+</body>
+</html>
