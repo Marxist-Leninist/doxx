@@ -1,0 +1,54 @@
+import socket
+import threading
+import sys
+
+# Function to handle incoming messages
+def receive_messages(sock):
+    while True:
+        try:
+            data, addr = sock.recvfrom(1024)
+            print(f"\n{addr[0]}:{addr[1]} says: {data.decode()}")
+        except:
+            pass
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python p2p_chat.py [your_port] [peer_ip:peer_port]")
+        print("Example: python p2p_chat.py 5000 192.168.1.2:5001")
+        sys.exit(1)
+
+    # Your listening port
+    my_port = int(sys.argv[1])
+
+    # Peer information
+    peer_info = sys.argv[2].split(":")
+    peer_ip = peer_info[0]
+    peer_port = int(peer_info[1])
+
+    # Create UDP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(('', my_port))
+
+    # Start thread to listen for incoming messages
+    receive_thread = threading.Thread(target=receive_messages, args=(sock,))
+    receive_thread.daemon = True
+    receive_thread.start()
+
+    print(f"Welcome to the P2P Chat!")
+    print(f"Your messages will be sent to {peer_ip}:{peer_port}")
+    print("Type your messages below.\n")
+
+    while True:
+        message = input()
+        if message.lower() == 'exit':
+            print("Exiting chat.")
+            break
+        try:
+            sock.sendto(message.encode(), (peer_ip, peer_port))
+        except:
+            print("Failed to send message.")
+
+    sock.close()
+
+if __name__ == "__main__":
+    main()
